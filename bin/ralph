@@ -14,6 +14,7 @@ const skillsRoot = path.join(repoRoot, "skills");
 let agentOverride = null;
 let installSkills = false;
 let installForce = false;
+let installQuant = false;
 let prdPath = null;
 let progressPath = null;
 let prdOutPath = null;
@@ -71,7 +72,7 @@ function usage() {
   console.log(`ralph <command>
 
 Commands:
-  install [--skills] [--force]        Copy .agents/ralph into the current repo
+  install [--skills] [--force] [--quant]  Copy .agents/ralph into the current repo
   prd ["<request>"] [--out path]      Generate a PRD (JSON) via agent
   ping                                Minimal agent health check
   log "<message>"                     Append to .ralph/activity.log
@@ -151,6 +152,10 @@ for (let i = 0; i < rawArgs.length; i += 1) {
   }
   if (arg === "--force") {
     installForce = true;
+    continue;
+  }
+  if (arg === "--quant") {
+    installQuant = true;
     continue;
   }
   if (arg.startsWith("--prd=")) {
@@ -312,6 +317,41 @@ async function main() {
       if (exists(readmeSrc)) fs.copyFileSync(readmeSrc, readmeDst);
       if (exists(diagramSrc)) fs.copyFileSync(diagramSrc, diagramDst);
       if (exists(imageSrc)) fs.copyFileSync(imageSrc, imageDst);
+    }
+    // Handle --quant flag: copy quant templates
+    if (installQuant) {
+      const templatesDir = path.join(globalDir, "templates");
+      const quantPrdSrc = path.join(templatesDir, "PRD_quant.json");
+      const quantGuardrailsSrc = path.join(templatesDir, "guardrails_quant.md");
+      const tasksDir = path.join(cwd, ".agents", "tasks");
+      const ralphDir = path.join(cwd, ".ralph");
+      const prdDst = path.join(tasksDir, "prd.json");
+      const guardrailsDst = path.join(ralphDir, "guardrails.md");
+
+      fs.mkdirSync(tasksDir, { recursive: true });
+      fs.mkdirSync(ralphDir, { recursive: true });
+
+      if (exists(quantPrdSrc)) {
+        if (exists(prdDst) && !installForce) {
+          console.log(`PRD already exists at ${prdDst}. Use --force to overwrite.`);
+        } else {
+          fs.copyFileSync(quantPrdSrc, prdDst);
+          console.log(`Installed quant PRD template to ${prdDst}`);
+        }
+      } else {
+        console.error(`Quant PRD template not found at ${quantPrdSrc}`);
+      }
+
+      if (exists(quantGuardrailsSrc)) {
+        if (exists(guardrailsDst) && !installForce) {
+          console.log(`Guardrails already exist at ${guardrailsDst}. Use --force to overwrite.`);
+        } else {
+          fs.copyFileSync(quantGuardrailsSrc, guardrailsDst);
+          console.log(`Installed quant guardrails to ${guardrailsDst}`);
+        }
+      } else {
+        console.error(`Quant guardrails template not found at ${quantGuardrailsSrc}`);
+      }
     }
     if (installSkills) {
       await runInstallSkills();
