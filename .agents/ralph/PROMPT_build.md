@@ -124,3 +124,42 @@ If the selected story changes UI, you MUST verify it in the browser:
 4. Take a screenshot if helpful for the progress log.
 
 A frontend story is NOT complete until browser verification passes.
+
+## Quant Research Verification (Required when RALPH_MODE=quant)
+
+If the PRD has `"mode": "quant"` or RALPH_MODE=quant is set, apply these additional checks:
+
+### Quant Verification Checklist
+Before marking a story complete, verify:
+- [ ] **Determinism**: Run twice with same input, compare outputs
+  - Byte-for-byte match for non-LLM paths
+  - Or within tolerance for floats (check PRD reproducibility.tolerance)
+- [ ] **Data validation**: Input data passes schema/Pydantic checks
+- [ ] **Numerical stability**: No NaN/Inf in outputs
+- [ ] **Edge cases**: Empty data, single row, extreme values handled gracefully
+- [ ] **Performance**: Acceptable execution time for expected data size
+
+### Quant-Specific Audit
+In step 9 (audit before commit), also check:
+- **Data integrity**: No accidental modification of source data files
+- **Numerical precision**: Float comparisons use appropriate tolerance
+- **Reproducibility**: Results are deterministic for same inputs
+- **Logging**: Key parameters and metrics are logged
+
+### Progress Entry Format (Quant Extension)
+Add these fields to progress entries when in quant mode:
+```
+- Dataset: <path> (<row_count> rows, <date_range if applicable>)
+- Parameters: <key settings/thresholds used>
+- Results: <primary_metric>=<value> (baseline: <baseline_value if applicable>)
+- Determinism: VERIFIED (2 runs identical) / FAILED (reason)
+- Artifacts: <output files generated>
+```
+
+### Story Type Guidelines
+- **DS-XXX (Data Stories)**: Focus on data validation, schema enforcement, error handling
+- **AN-XXX (Analysis Stories)**: Focus on numerical correctness, no NaN/Inf, metrics accuracy
+- **EXP-XXX (Experiment Stories)**: Focus on statistical validity, confidence intervals, effect sizes
+- **US-XXX (User Stories)**: Focus on CLI/API usability, error messages, documentation
+
+A quant story is NOT complete until determinism verification passes.

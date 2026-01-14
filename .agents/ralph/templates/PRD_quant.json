@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "project": "project-name",
+  "description": "Brief project description",
+  "mode": "quant",
+  "goals": [
+    "Primary objective",
+    "Success metrics"
+  ],
+  "nonGoals": [
+    "What this project will NOT do"
+  ],
+  "dataRequirements": {
+    "inputDatasets": [
+      {
+        "path": "data/input.csv",
+        "format": "csv",
+        "schema": "Define expected columns and types"
+      }
+    ],
+    "benchmarkData": [
+      {
+        "path": "data/benchmark.csv",
+        "purpose": "Reference dataset for validation"
+      }
+    ],
+    "dataQualityChecks": [
+      "No null values in required columns",
+      "Values within expected ranges",
+      "Unique identifiers are unique"
+    ]
+  },
+  "reproducibility": {
+    "randomSeeds": {
+      "numpy": 42,
+      "python": 42
+    },
+    "environment": {
+      "python": "3.11+",
+      "keyDependencies": ["pandas", "numpy", "pydantic"]
+    },
+    "determinismVerification": "Run twice with --no-llm, compare outputs byte-for-byte"
+  },
+  "qualityGates": [
+    {
+      "name": "tests",
+      "command": "pytest tests/",
+      "required": true
+    },
+    {
+      "name": "determinism",
+      "command": "python scripts/verify_determinism.py",
+      "required": true
+    }
+  ],
+  "stories": [
+    {
+      "id": "DS-001",
+      "title": "Data Ingestion",
+      "description": "Parse input files and validate against schema",
+      "status": "open",
+      "tasks": [
+        "Parse CSV/JSON/PDF input files",
+        "Validate data against Pydantic schema",
+        "Handle missing/malformed data gracefully",
+        "Log data quality metrics"
+      ],
+      "acceptance": [
+        "All sample files parse without error",
+        "Schema validation passes",
+        "Deterministic output for same input"
+      ],
+      "dependsOn": []
+    },
+    {
+      "id": "AN-001",
+      "title": "Core Analysis",
+      "description": "Implement primary metrics and calculations",
+      "status": "open",
+      "tasks": [
+        "Implement primary metrics calculation",
+        "Generate summary statistics",
+        "Validate numerical outputs"
+      ],
+      "acceptance": [
+        "Metrics match expected values for sample data",
+        "No NaN/Inf in outputs",
+        "Performance within acceptable bounds"
+      ],
+      "dependsOn": ["DS-001"]
+    },
+    {
+      "id": "EXP-001",
+      "title": "Hypothesis Testing (if applicable)",
+      "description": "Statistical hypothesis testing",
+      "status": "open",
+      "hypothesis": {
+        "H0": "Null hypothesis statement",
+        "H1": "Alternative hypothesis statement",
+        "successThreshold": "p < 0.05, effect size > 0.1"
+      },
+      "tasks": [
+        "Implement statistical test",
+        "Calculate confidence intervals",
+        "Document results with effect sizes"
+      ],
+      "acceptance": [
+        "Statistical test implemented correctly",
+        "Results documented with confidence intervals",
+        "Multiple comparison correction applied if needed"
+      ],
+      "dependsOn": ["AN-001"]
+    },
+    {
+      "id": "US-001",
+      "title": "CLI Interface",
+      "description": "Command-line interface for running analysis",
+      "status": "open",
+      "tasks": [
+        "Implement CLI argument parsing",
+        "Add --no-llm mode for deterministic runs",
+        "Output results as structured JSON"
+      ],
+      "acceptance": [
+        "CLI executes end-to-end with sample data",
+        "Output JSON validates against schema",
+        "Helpful error messages on failure"
+      ],
+      "dependsOn": ["AN-001"]
+    }
+  ],
+  "risks": [
+    {
+      "description": "Data quality issues in input files",
+      "mitigation": "Robust validation and clear error messages"
+    },
+    {
+      "description": "Numerical precision edge cases",
+      "mitigation": "Explicit tolerance checks, avoid comparing floats directly"
+    },
+    {
+      "description": "Performance with large datasets",
+      "mitigation": "Profile with representative data, optimize bottlenecks"
+    }
+  ]
+}

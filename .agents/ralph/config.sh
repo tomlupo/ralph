@@ -23,3 +23,17 @@
 # NO_COMMIT=false
 # MAX_ITERATIONS=25
 # STALE_SECONDS=0
+
+# =============================================================================
+# RALPH MODE (webdev, quant, general)
+# =============================================================================
+# Set the mode to customize prompts and templates for your domain.
+# - webdev: Default. Web development focused with browser testing.
+# - quant: Quantitative research with data validation, determinism checks.
+# - general: Minimal domain-specific additions.
+# RALPH_MODE="webdev"
+
+# Quant-specific options (only used when RALPH_MODE="quant")
+# RALPH_VERIFY_DETERMINISM=true    # Require determinism verification
+# RALPH_DETERMINISM_TOLERANCE=1e-10 # Tolerance for floating point comparisons
+# RALPH_DATA_DIR="data/"           # Default data directory
